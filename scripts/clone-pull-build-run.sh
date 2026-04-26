@@ -57,8 +57,8 @@ set -E
 trap 'set +x; s=$?; err "status=$? at ${BASH_SOURCE[0]}:$LINENO" >&2; exit $s' ERR
 
 # Git repositories
-goinfer_dir="$(cd "${BASH_SOURCE[0]%/*}/.."  &&  pwd)"
-root_dir="$(   cd "${goinfer_dir}/.."        &&  pwd)"
+goinfer_dir="$(  cd "${BASH_SOURCE[0]%/*}/.."  &&  pwd)"
+root_dir="$(     cd "${goinfer_dir}/.."        &&  pwd)"
 llamaCpp_dir="${root_dir}/llama.cpp"
 
 # CPU flags used to build both llama.cpp and goinfer
@@ -140,8 +140,9 @@ build_llamaCpp() {
     pwd
     set -x
     # generate the Ninja files (faster than Makefile)
-    cmake -B build/ -G Ninja                                                                  \
-      -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS:-OFF}                                          \
+    cmake -G Ninja                                                                            \
+      -B build/                                                                               \
+      -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS:-ON}                                           \
       -D CMAKE_BUILD_TYPE=Release                                                             \
       -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-86}                             \
       -D CMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS:-"-Wl,--allow-shlib-undefined,-flto"}\
@@ -154,25 +155,24 @@ build_llamaCpp() {
       -D GGML_AVX512_VNNI=$GGML_AVX512_VNNI                                                   \
       -D GGML_BMI2=$GGML_BMI2                                                                 \
       -D GGML_SSE42=$GGML_SSE42                                                               \
-      -D GGML_BACKEND_DL=${GGML_BACKEND_DL:-OFF}                                              \
-      -D GGML_BLAS=${GGML_BLAS:-OFF}                                                          \
+      -D GGML_BACKEND_DL=${GGML_BACKEND_DL:-ON}                                               \
+      -D GGML_BLAS=${GGML_BLAS:-ON}                                                           \
       -D GGML_CCACHE=${GGML_CCACHE:-ON}                                                       \
-      -D GGML_CPU_ALL_VARIANTS=${GGML_CPU_ALL_VARIANTS:-OFF}                                  \
-      -D GGML_CUDA_ENABLE_UNIFIED_MEMORY=${GGML_CUDA_ENABLE_UNIFIED_MEMORY:-OFF}              \
+      -D GGML_CPU_ALL_VARIANTS=${GGML_CPU_ALL_VARIANTS:-ON}                                   \
+      -D GGML_CUDA_ENABLE_UNIFIED_MEMORY=${GGML_CUDA_ENABLE_UNIFIED_MEMORY:-ON}               \
       -D GGML_CUDA_F16=${GGML_CUDA_F16:-ON}                                                   \
       -D GGML_CUDA_FA_ALL_QUANTS=${GGML_CUDA_FA_ALL_QUANTS:-ON}                               \
       -D GGML_CUDA=${GGML_CUDA:-$(command -v nvcc >/dev/null && echo ON || echo OFF)}         \
       -D GGML_LTO=${GGML_LTO:-ON}                                                             \
       -D GGML_NATIVE=${GGML_NATIVE:-ON}                                                       \
-      -D GGML_SCHED_MAX_COPIES=${GGML_SCHED_MAX_COPIES:-1}                                    \
-      -D GGML_STATIC=${GGML_STATIC:-ON}                                                       \
+      -D GGML_STATIC=${GGML_STATIC:-OFF}                                                      \
       -D LLAMA_BUILD_EXAMPLES=${LLAMA_BUILD_EXAMPLES:-ON}                                     \
       -D LLAMA_BUILD_TESTS=${LLAMA_BUILD_TESTS:-OFF}                                          \
       -D LLAMA_BUILD_TOOLS=${LLAMA_BUILD_TOOLS:-ON}                                           \
-      -D LLAMA_CURL=${LLAMA_CURL:-ON}                                                         \
       -D LLAMA_LLGUIDANCE=${LLAMA_LLGUIDANCE:-OFF}                                            \
       .
-    cmake --build build/ --config Release --clean-first --target llama-server llama-gguf
+      # -D GGML_SCHED_MAX_COPIES=${GGML_SCHED_MAX_COPIES:-1}                                  \
+    cmake --build build/ --config Release --clean-first --target llama-server llama-bench
   )
 }
 
