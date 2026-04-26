@@ -121,6 +121,14 @@ for pkg in                              \
     vulkan-icd-loader                   \
     wayland                             \
     xorg-xprop                          \
+    ananicy-cpp                         \
+    cachyos-settings                    \
+    inxi                                \
+    iw                                  \
+    spdlog                              \
+    wireless-regdb                      \
+    zram-generator                      \
+    cachyos-ananicy-rules               \
     ;
 do
     pacman -Qtq | rg -sq "^$pkg\$" &&
