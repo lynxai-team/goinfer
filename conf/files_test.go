@@ -252,19 +252,19 @@ func Test_extractModelNameAndFlags(t *testing.T) {
 	const (
 		script1 = "/path/to/llama-server --host 0.0.0.0 --port 5800 --no-warmup " +
 			"	-m /path/model.gguf " +
-			`	--no-mmap --chat-template-kwargs '{"reasoning_effort": "high"}' ` +
+			`	--load-mode none --chat-template-kwargs '{"reasoning_effort": "high"}' ` +
 			"	--reasoning-format auto -c 10240 " + " #	--no-context-shift"
 
 		script2 = `#!/bin/sh
 /path/to/llama-server --host 0.0.0.0 --port 5800 \
-	--no-warmup --model /path/model.gguf --no-mmap \
+	--no-warmup --model /path/model.gguf --load-mode none \
 	--chat-template-kwargs '{"reasoning_effort": "high"}' \
 	--reasoning-format auto -c 10240 \
 #	--no-context-shift
 `
 		script3 = `#!/path/to/llama-server --host 0.0.0.0 --port 5800 \
 	--no-warmup -m /path/model.gguf \
-	--no-mmap --chat-template-kwargs '{"reasoning_effort": "high"}' \
+	--load-mode none --chat-template-kwargs '{"reasoning_effort": "high"}' \
 	--reasoning-format auto -c 10240 \
 #	--no-context-shift
 `
@@ -282,9 +282,9 @@ func Test_extractModelNameAndFlags(t *testing.T) {
 	}}
 
 	tests := []struct{ path, wantModel, wantFlags string }{
-		{"1.sh", "/path/model.gguf", `--no-mmap --chat-template-kwargs '{"reasoning_effort": "high"}' 	--reasoning-format auto -c 10240  #	--no-context-shift`},
-		{"2.sh", "/path/model.gguf", `--no-mmap --chat-template-kwargs '{"reasoning_effort": "high"}' --reasoning-format auto -c 10240`},
-		{"3.sh", "/path/model.gguf", `--no-mmap --chat-template-kwargs '{"reasoning_effort": "high"}' --reasoning-format auto -c 10240`},
+		{"1.sh", "/path/model.gguf", `--load-mode none --chat-template-kwargs '{"reasoning_effort": "high"}' 	--reasoning-format auto -c 10240  #	--no-context-shift`},
+		{"2.sh", "/path/model.gguf", `--load-mode none --chat-template-kwargs '{"reasoning_effort": "high"}' --reasoning-format auto -c 10240`},
+		{"3.sh", "/path/model.gguf", `--load-mode none --chat-template-kwargs '{"reasoning_effort": "high"}' --reasoning-format auto -c 10240`},
 		{"4.sh", "", ""},
 		{"5.sh", "", ""},
 		{"6.sh", "~/model.gguf", ""},

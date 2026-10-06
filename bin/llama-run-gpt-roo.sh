@@ -30,7 +30,7 @@ cd ${BASH_SOURCE[0]%/*}
 	--host 0.0.0.0 --port 8080           \
 	--no-context-shift                   \
 	--no-warmup                          \
-	--no-mmap                            \
+	--load-mode none                     \
 	-hf ggml-org/gpt-oss-120b-GGUF       \
 	--alias gpt-oss-120b                 \
 	--temp 1.0  --top-k 0.0              \

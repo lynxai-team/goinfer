@@ -86,10 +86,10 @@ func DefaultCfg() *Cfg {
 			Exe:     "/home/me/llama.cpp/build/bin/llama-server",
 			Verbose: "",
 			Debug:   "--log-verbosity 4",
-			Common: `--no-mmap --mlock --prio 2 --prio-batch 2 --cpu-strict 1 --props --no-warmup ` +
-				`--chat-template-kwargs '{"reasoning_effort":"high"}' ` +
-				`--webui-config '{"keepStatsVisible":true,"showToolCalls":true,"pasteLongTextToFileLen":5555,"disableAutoScroll":false,"renderUserContentAsMarkdown":true}'`,
-			// --webui-config defaults: llama.cpp/tools/server/webui/src/lib/constants/settings-config.ts
+			Common: `--load-mode none --prio 2 --prio-batch 2 --cpu-strict 1 --props --no-warmup ` +
+				`--chat-template-kwargs '{"reasoning_effort":"max"}' ` +
+				`--webui-config '{"showAgenticTurnStats":true,"showBuildVersion":true,"showMessageStats":true,"showSystemMessage":true,"alwaysShowToolCallContent":true,"pasteLongTextToFileLen":5555,"disableAutoScroll":false,"renderUserContentAsMarkdown":true}'`,
+			// --webui-config defaults: https://github.com/ggml-org/llama.cpp/blob/master/tools/ui/src/lib/constants/settings-keys.constants.ts
 			Smith: "--jinja --chat-template-file " + TemplateJinja,
 		},
 		// ExtraModels: map[string]string{ // Output of `llama-server -h` contains:
