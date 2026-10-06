@@ -48,8 +48,8 @@ set -o noclobber         # prevent accidental file overwriting with > redirectio
 shopt -s inherit_errexit # apply these restrictions to $(command substitution)
 
 # Color logs
-err() { set +x; echo >&2 -e "\033[34m$(date +%H:%M)\033[m \033[31m" "$@" "\033[m"; }
-log() { set +x; echo >&2 -e "\033[34m$(date +%H:%M)\033[m \033[32m" "$@" "\033[m"; }
+err() { set +x; echo >&2 -e "\e[34m$(date +%H:%M)\e[m \e[31m" "$@" "\e[m"; }
+log() { set +x; echo >&2 -e "\e[34m$(date +%H:%M)\e[m \e[32m" "$@" "\e[m"; }
 lop() { log "repo ${repo:-none} - $@"; set -x; } # lop stands for LOg rePo
 
 # print the script line number if something goes wrong
@@ -177,14 +177,14 @@ build_llamaCpp() {
 }
 
 # if GI_MODELS_DIR is unset => discover the parent folders of the GUFF files:
-#   - find the files *.gguf in $HOME and /mnt directories
-#   - -printf their folders (%h) separated by nul character `\0`
-#     (support folder names containing newline characters)
-#   - sort them, -u to keep a unique copy of each folder (`z` = input is `\0` separated)
-#   - while read xxx; do xxx; done  =>  keep the parent folders
-#   - echo $d: prints each parent folder separated by : (`-n` no newline)
+# - find the files *.gguf in $HOME and /mnt directories
+# - -printf their folders (%h) separated by nul character `\0`
+#   (support folder names containing newline characters)
+# - sort them, -u to keep a unique copy of each folder (`z` = input is `\0` separated)
+# - while read xxx; do xxx; done  =>  keep the parent folders
+# - echo $d: prints each parent folder separated by : (`-n` no newline)
 GI_MODELS_DIR="${GI_MODELS_DIR:-$(log "search for *.gguf in $HOME and /mnt"; 
-p=; { find "$HOME" /mnt -type f -name '*.gguf' -printf '%h\0' || : ; } | sort -zu |
+p=; { find "$HOME" /mnt -type d -o -name '*.gguf' -printf '%h\0' || : ; } | sort -zu |
 while IFS= read -rd '' d;do [[ $p && $d == "$p"/* ]] && continue;echo -n "$d:";p=$d;done)}"
 
 export GI_MODELS_DIR=${GI_MODELS_DIR:?GI_MODELS_DIR is empty: Download a model file *.gguf or set GI_MODELS_DIR}
