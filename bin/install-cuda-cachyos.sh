@@ -118,7 +118,7 @@ cleanup_backups /etc/default
 )
 
 # Remove Desktop-related packages
-# TODO also remove: plymouth
+# TODO also remove: plymouth cachyos-packageinstaller
 for pkg in                              \
     accountsservice                     \
     adwaita-fonts                       \
@@ -135,7 +135,6 @@ for pkg in                              \
     btrfs-assistant                     \
     cachyos-ananicy-rules               \
     cachyos-kernel-manager              \
-    cachyos-packageinstaller            \
     cachyos-plymouth-bootanimation      \
     cachyos-plymouth-theme              \
     cachyos-wallpapers                  \
