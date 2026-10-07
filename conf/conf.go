@@ -87,7 +87,6 @@ func DefaultCfg() *Cfg {
 			Verbose: "",
 			Debug:   "--log-verbosity 4",
 			Common: `--load-mode none --prio 2 --prio-batch 2 --cpu-strict 1 --props --no-warmup ` +
-				`--chat-template-kwargs '{"reasoning_effort":"max"}' ` +
 				`--webui-config '{"showAgenticTurnStats":true,"showBuildVersion":true,"showMessageStats":true,"showSystemMessage":true,"alwaysShowToolCallContent":true,"pasteLongTextToFileLen":5555,"disableAutoScroll":false,"renderUserContentAsMarkdown":true}'`,
 			// --webui-config defaults: https://github.com/ggml-org/llama.cpp/blob/master/tools/ui/src/lib/constants/settings-keys.constants.ts
 			Smith: "--jinja --chat-template-file " + TemplateJinja,
