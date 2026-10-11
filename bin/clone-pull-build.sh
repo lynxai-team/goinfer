@@ -7,20 +7,14 @@ Usage:
 
   ./clone-pull-build.sh
 
-This script git-clone (git-pull) and builds llama.cpp with best optimizations.
+This script does:
+- git clone (or pull) of the llama.cpp repo
+- build llama-server with CUDA and best optimizations
 
-Specify the Git tag or branch:
-
+Optional: Specify the Git tag or branch:
   tag=v0.6.0    ./clone-pull-build.sh
   branch=master ./clone-pull-build.sh
 '
-
-case "${1:-}" in
-  -h|--help)
-    echo "$help"
-    exit
-    ;;
-esac
 
 # Safe bash
 set -e                   # stop the script if any command returns a non‑zero status
@@ -38,40 +32,34 @@ lop() { log "repo ${repo:-none} - $@"; set -x; } # lop stands for LOg rePo
 set -E
 trap 'set +x; s=$?; err "status=$? at ${BASH_SOURCE[0]}:$LINENO" >&2; exit $s' ERR
 
-# Git repositories
-goinfer_dir="$(  cd "${BASH_SOURCE[0]%/*}/.."  &&  pwd)"
-root_dir="$(     cd "${goinfer_dir}/.."        &&  pwd)"
-llamaCpp_dir="${root_dir}/llama.cpp"
 
-# CPU flags used to build both llama.cpp and goinfer
-flags="$(grep "^flags" -wm1 /proc/cpuinfo) " # trailing space required
+case "${1:-}" in
+  -h|--help)
+    echo "$help"
+    exit
+    ;;
+esac
+
+repo=ggml-org/llama.cpp  
+branch="${branch:-master}"
+tag="${tag:-}"
 
 command -v git    >/dev/null || { err REQUIRED: install git    && exit 1; }
 command -v cmake  >/dev/null || { err REQUIRED: install cmake  && exit 1; }
 command -v ninja  >/dev/null || { err REQUIRED: install ninja  && exit 1; }
 command -v ccache >/dev/null || { err REQUIRED: install ccache && exit 1; }
 
-do_llamaCpp() {
-  cd "$root_dir"
-  clone_checkout_pull ggml-org/llama.cpp "${branch:-master}" "${tag:-}"
-  build_llamaCpp
-}
-
 # clone_checkout_pull sets the variable build_reason=... to trigger the build
 clone_checkout_pull() {
-  local repo=$1
-  local branch=$2
-  local tag=$3
-
   build_reason=clone
   [ -d "${repo#*/}" ] && build_reason= || 
     ( pwd; lop clone; git clone https://github.com/"$repo" )
-  
+    
   cd "${repo#*/}"
   pwd
-
+  
   ( lop fetch; git fetch --all --prune --tags )
-
+  
   if [[ -n "$tag" ]]
   then
     build_reason="tag: $tag"
@@ -79,7 +67,6 @@ clone_checkout_pull() {
   else
     # lop "switch $branch"; git switch -C "$branch" origin/"$branch" )
     ( lop "switch $branch"; git switch "$branch" )
-
     local="$( git rev-parse HEAD)"
     remote="$(git rev-parse "@{upstream}")"
     if [[ "$local" != "$remote" ]]
@@ -89,16 +76,18 @@ clone_checkout_pull() {
       ( lop "discard local changes"; git reset --hard origin/"$branch" )
     fi
   fi
-
+  
   ( set -x; git status --short )
 }
 
 
-build_llamaCpp() {
+build_llama() {
   [[ -n "$build_reason" ]] || { [[ -f build/bin/llama-server ]] || build_reason="missing build/bin/llama-server" ; }
   [[ -z "$build_reason" ]] || (
     log "build llama.cpp because $build_reason"
     rm -rf build/  # this guarantees a clean build, ccache will restore deleted files
+    # CPU flags
+    flags="$(grep "^flags" -wm1 /proc/cpuinfo) " # trailing space required
     GGML_AVX=$(        [[ "$flags" == *" avx "*         ]] && echo ON || echo OFF)
     GGML_AVX2=$(       [[ "$flags" == *" avx2 "*        ]] && echo ON || echo OFF)
     GGML_AVX_VNNI=$(   [[ "$flags" == *" vnni "*        ]] && echo ON || echo OFF)
@@ -141,11 +130,17 @@ build_llamaCpp() {
       -D LLAMA_BUILD_EXAMPLES=${LLAMA_BUILD_EXAMPLES:-ON}                                     \
       -D LLAMA_BUILD_TESTS=${LLAMA_BUILD_TESTS:-OFF}                                          \
       -D LLAMA_BUILD_TOOLS=${LLAMA_BUILD_TOOLS:-ON}                                           \
-      -D LLAMA_CURL=${LLAMA_CURL:-ON}                                                         \
       -D LLAMA_LLGUIDANCE=${LLAMA_LLGUIDANCE:-OFF}                                            \
       .
     cmake --build build/ --config Release --clean-first --target llama-server
   )
 }
 
-do_llamaCpp
+# Git repositories
+goinfer_dir="$(cd "${BASH_SOURCE[0]%/*}/.."  &&  pwd)"
+root_dir="$(   cd "${goinfer_dir}/.."        &&  pwd)"
+cd "$root_dir"
+
+clone_checkout_pull
+
+build_llama

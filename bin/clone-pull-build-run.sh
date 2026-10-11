@@ -59,7 +59,7 @@ trap 'set +x; s=$?; err "status=$? at ${BASH_SOURCE[0]}:$LINENO" >&2; exit $s' E
 # Git repositories
 goinfer_dir="$(cd "${BASH_SOURCE[0]%/*}/.."  &&  pwd)"
 root_dir="$(   cd "${goinfer_dir}/.."        &&  pwd)"
-llamaCpp_dir="${root_dir}/llama.cpp"
+llama_dir="${root_dir}/llama.cpp"
 
 # CPU flags used to build both llama.cpp and goinfer
 flags="$(grep "^flags" -wm1 /proc/cpuinfo) " # trailing space required
@@ -78,12 +78,12 @@ command -v cmake  >/dev/null || { err REQUIRED: install cmake  && exit 1; }
 command -v ninja  >/dev/null || { err REQUIRED: install ninja  && exit 1; }
 command -v ccache >/dev/null || { err REQUIRED: install ccache && exit 1; }
 
-do_llamaCpp() {
+do_llama() {
   cd "$root_dir"
 
   clone_checkout_pull ggml-org/llama.cpp "${branch:-master}" "${tag:-}"
 
-  build_llamaCpp
+  build_llama
 }
 
 # clone_checkout_pull sets the variable build_reason=... to trigger the build
@@ -123,7 +123,7 @@ clone_checkout_pull() {
 }
 
 
-build_llamaCpp() {
+build_llama() {
   [[ -n "$build_reason" ]] || { [[ -f build/bin/llama-server ]] || build_reason="missing build/bin/llama-server" ; }
   [[ -z "$build_reason" ]] || (
     log "build llama.cpp because $build_reason"
@@ -189,7 +189,7 @@ while IFS= read -rd '' d;do [[ $p && $d == "$p"/* ]] && continue;echo -n "$d:";p
 export GI_MODELS_DIR=${GI_MODELS_DIR:?GI_MODELS_DIR is empty: Download a model file *.gguf or set GI_MODELS_DIR}
 
 # clone/pull/build llama.cpp if GI_LLAMA_EXE is unset/empty
-export GI_LLAMA_EXE="${GI_LLAMA_EXE:-"$(do_llamaCpp >&2 && \ls -1 "$llamaCpp_dir/build/bin/llama-server")"}"
+export GI_LLAMA_EXE="${GI_LLAMA_EXE:-"$(do_llama >&2 && \ls -1 "$llama_dir/build/bin/llama-server")"}"
 
 cd "$goinfer_dir"
 
