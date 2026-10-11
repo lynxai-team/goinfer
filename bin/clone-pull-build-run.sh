@@ -18,8 +18,8 @@ This script can be used:
 
 For better reproducibility, you can specify the tag or branch:
 
-  tag=b7777     ./clone-pull-build-run.sh`
-  branch=master ./clone-pull-build-run.sh`
+  tag=b7777     ./clone-pull-build-run.sh
+  branch=master ./clone-pull-build-run.sh
 
 If you have already your `llama-server` (or compatible fork),
 set `export GI_LLAMA_EXE=/home/me/path/llama-server`.
@@ -57,8 +57,8 @@ set -E
 trap 'set +x; s=$?; err "status=$? at ${BASH_SOURCE[0]}:$LINENO" >&2; exit $s' ERR
 
 # Git repositories
-goinfer_dir="$(  cd "${BASH_SOURCE[0]%/*}/.."  &&  pwd)"
-root_dir="$(     cd "${goinfer_dir}/.."        &&  pwd)"
+goinfer_dir="$(cd "${BASH_SOURCE[0]%/*}/.."  &&  pwd)"
+root_dir="$(   cd "${goinfer_dir}/.."        &&  pwd)"
 llamaCpp_dir="${root_dir}/llama.cpp"
 
 # CPU flags used to build both llama.cpp and goinfer
@@ -140,8 +140,7 @@ build_llamaCpp() {
     pwd
     set -x
     # generate the Ninja files (faster than Makefile)
-    cmake -G Ninja                                                                            \
-      -B build/                                                                               \
+    cmake -B build/ -G Ninja                                                                            \
       -D BUILD_SHARED_LIBS=${BUILD_SHARED_LIBS:-ON}                                           \
       -D CMAKE_BUILD_TYPE=Release                                                             \
       -D CMAKE_CUDA_ARCHITECTURES=${CMAKE_CUDA_ARCHITECTURES:-86}                             \
