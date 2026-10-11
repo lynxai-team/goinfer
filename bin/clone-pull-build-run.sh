@@ -161,7 +161,7 @@ build_llamaCpp() {
       -D GGML_CPU_ALL_VARIANTS=${GGML_CPU_ALL_VARIANTS:-ON}                                   \
       -D GGML_CUDA_ENABLE_UNIFIED_MEMORY=${GGML_CUDA_ENABLE_UNIFIED_MEMORY:-ON}               \
       -D GGML_CUDA_F16=${GGML_CUDA_F16:-ON}                                                   \
-      -D GGML_CUDA_FA_ALL_QUANTS=${GGML_CUDA_FA_ALL_QUANTS:-ON}                               \
+      -D GGML_CUDA_FA_QUANTS=${GGML_CUDA_FA_ALL_QUANTS:-all}                                  \
       -D GGML_CUDA=${GGML_CUDA:-$(command -v nvcc >/dev/null && echo ON || echo OFF)}         \
       -D GGML_LTO=${GGML_LTO:-ON}                                                             \
       -D GGML_NATIVE=${GGML_NATIVE:-ON}                                                       \
